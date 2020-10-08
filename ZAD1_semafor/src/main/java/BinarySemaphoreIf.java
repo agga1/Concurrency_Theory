@@ -1,10 +1,8 @@
-public class BinarySemaphore implements ISemaphore{
+public class BinarySemaphoreIf implements ISemaphore{
     private boolean _state = true;
-    private int _waits = 0;
 
     public synchronized void P(){
-        _waits += 1;
-        while(!_state){
+        if(!_state){
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -12,7 +10,6 @@ public class BinarySemaphore implements ISemaphore{
             }
         }
         _state = false;
-        _waits -=1;
     }
     public synchronized void V(){
         if(!_state){

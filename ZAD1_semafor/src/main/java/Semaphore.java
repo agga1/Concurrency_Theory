@@ -1,4 +1,4 @@
-public class Semaphore {
+public class Semaphore implements ISemaphore{
     private final BinarySemaphore countAndNewSlotSem = new BinarySemaphore();
     private final BinarySemaphore sectionSem = new BinarySemaphore();
     private int count;

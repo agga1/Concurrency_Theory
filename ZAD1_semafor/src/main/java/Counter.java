@@ -1,11 +1,15 @@
 public class Counter {
     private int value = 0;
-    BinarySemaphore binSemaphore = new BinarySemaphore();
+    ISemaphore binSemaphore;
+
+    public Counter(ISemaphore binSemaphore){
+        this.binSemaphore = binSemaphore;
+    }
 
     public void increment() {
-        binSemaphore.P();
+        this.binSemaphore.P();
         this.value += 1;
-        binSemaphore.V();
+        this.binSemaphore.V();
     }
     public void decrement() {
         binSemaphore.P();
