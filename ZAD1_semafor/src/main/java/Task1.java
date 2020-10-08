@@ -2,8 +2,8 @@ import static java.lang.Thread.sleep;
 
 public class Task1 {
     public static void main(String[] args) throws InterruptedException {
-        final int nr_iter = 10000;
-        final int nr_threads = 10;
+        final int nr_iter = 1000;
+        final int nr_threads = 8;
         Counter counter = new Counter();
         for(int i =0; i<nr_threads/2;i++){
             new Thread(() -> {
@@ -17,8 +17,9 @@ public class Task1 {
                     counter.decrement();
             }).start();
         }
-        sleep(2000);
+        sleep(1000);
         System.out.println(counter.getValue());
+        assert counter.getValue() == 0 : "counter is not threadsafe!";
 
     }
 }
