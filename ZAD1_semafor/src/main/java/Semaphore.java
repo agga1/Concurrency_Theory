@@ -12,7 +12,6 @@ public class Semaphore implements ISemaphore{
     public void P(){
         countAndNewSlotSem.P();
         count -= 1;
-        System.out.println("count: "+count);
         if(count < 0) {
             while (!newSlotFreed) {
                 countAndNewSlotSem.V();
@@ -26,7 +25,6 @@ public class Semaphore implements ISemaphore{
     public void V(){
         countAndNewSlotSem.P();
         count += 1;
-        System.out.println("new count: "+count);
         if(count <= 0){
             newSlotFreed = true;
             sectionSem.V();

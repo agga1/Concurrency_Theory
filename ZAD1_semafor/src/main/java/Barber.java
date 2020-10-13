@@ -1,20 +1,21 @@
 public class Barber {
-    private Semaphore semaphore;
+    private final Semaphore semaphore;
+    private final int seats;
     private int activeAtTheTime=0;
+
     public Barber(int seats){
+        this.seats = seats;
         semaphore = new Semaphore(seats);
     }
-    public void getHaircut(int timeMillis){
+
+    public void getHaircut(int timeMillis) throws InterruptedException {
         semaphore.P();
         activeAtTheTime ++;
-        System.out.println("active clients: "+activeAtTheTime);
-        try {
-            Thread.sleep(timeMillis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        System.out.println("<<");
+        assert activeAtTheTime <= seats : "more active clients than available seats!";
+        Thread.sleep(timeMillis);
         activeAtTheTime --;
+        System.out.println("  >>");
         semaphore.V();
-        System.out.println("active clients: "+activeAtTheTime);
     }
 }
