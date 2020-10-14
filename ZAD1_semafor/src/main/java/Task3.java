@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class Task3_1 {
+public class Task3 {
     public static void main(String[] args){
         countingSemaphoreExample();
     }

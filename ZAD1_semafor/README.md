@@ -22,11 +22,9 @@ więc nie wiadomo która kolejka wywołała notify() - liczniki zwykle są przes
 
 **Zad. 3**  
 semafor licznikowy: Semaphore  
-przykład użycia: Task3_1  
+przykład użycia: Task3  
 
 Semafor binarny nie jest szególnym przypadkiem semafora licznikowego, gdyż nie pamięta on, ile razy została wykonana na nim    
 operacja P() - nie spełnia więc definicji semafora licznikowego. 
 Semafor licznikowy z licznikiem 1 moze natomiast zostać użyty w roli semafora binarnego.
-
-użycie semafora licznikowego z licznikiem 1 jako semafora binarnego: Task3_2  
 
