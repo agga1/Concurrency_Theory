@@ -4,7 +4,7 @@ public class Task3_2 {
     public static void main(String[] args) throws InterruptedException {
         final int nr_iter = 1000;
         final int nr_threads = 8;
-
+        // counting semaphore used as a binary semaphore
         Counter counter = new Counter(new Semaphore(1));
         for(int i =0; i<nr_threads/2;i++){
             new Thread(() -> {
