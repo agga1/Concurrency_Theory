@@ -1,2 +1,5 @@
+*.zip
+TW2-filozo
+*.iml
 **/.idea
 **/target
