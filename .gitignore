@@ -1,4 +1,6 @@
 *.zip
+*.pdf
+*.docx
 TW2-filozo
 *.iml
 **/.idea
