@@ -6,8 +6,8 @@ import com.agga1.dmesh.mesh.Vertex;
 
 public class PW extends AbstractProduction<Vertex> {
 
-    public PW(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public PW(Vertex _obj) {
+        super(_obj);
     }
 
     @Override

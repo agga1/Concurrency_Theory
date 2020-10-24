@@ -6,13 +6,14 @@ import com.agga1.dmesh.production.PDrawer;
 
 public class PI extends AbstractProduction<Vertex> {
 
-    public PI(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public PI(Vertex _obj) {
+        super(_obj);
     }
 
     @Override
     public Vertex apply(Vertex s) {
         System.out.print("PI");
-        return new Vertex(null, null, null, null, "M");
+        s.setLabel("M");
+        return s;
     }
 }

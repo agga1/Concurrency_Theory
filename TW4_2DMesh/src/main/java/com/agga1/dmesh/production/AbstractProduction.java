@@ -8,11 +8,9 @@ public abstract class AbstractProduction<P> implements IProduction<P> {
     private final PThread thread = new PThread();
     private final P obj;
     private P result;
-    private final PDrawer<P> drawer;
 
-    public AbstractProduction(P _obj, PDrawer<P> _drawer) {
+    public AbstractProduction(P _obj) {
         this.obj = _obj;
-        this.drawer = _drawer;
     }
 
     @Override
@@ -42,7 +40,6 @@ public abstract class AbstractProduction<P> implements IProduction<P> {
         public void run() {
             lock.lock();
             result = apply(obj);
-//            drawer.draw(result);
         }
     }
 }

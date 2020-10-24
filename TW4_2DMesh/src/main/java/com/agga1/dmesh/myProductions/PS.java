@@ -6,8 +6,8 @@ import com.agga1.dmesh.production.PDrawer;
 
 public class PS extends AbstractProduction<Vertex> {
 
-    public PS(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public PS(Vertex _obj) {
+        super(_obj);
     }
 
     @Override

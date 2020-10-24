@@ -7,8 +7,8 @@ import com.agga1.dmesh.production.PDrawer;
 public class PJW extends AbstractProduction<Vertex> {
     /* Joins west by north-west-south connection*/
 
-    public PJW(Vertex _obj, PDrawer<Vertex> _drawer) {
-        super(_obj, _drawer);
+    public PJW(Vertex _obj) {
+        super(_obj);
     }
 
     @Override

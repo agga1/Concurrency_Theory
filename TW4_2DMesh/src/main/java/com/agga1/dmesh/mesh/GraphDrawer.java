@@ -7,8 +7,9 @@ import java.util.Queue;
 import static java.lang.Math.max;
 
 public class GraphDrawer implements PDrawer<Vertex> {
-    
-    private String[][] traverse(Vertex v){
+
+    /* visit all vertices southward and westward starting from v */
+    private String[][] traverseSW(Vertex v){
         HashMap<Vertex, int[]> vMap = new HashMap<>();
         Queue<Vertex> q = new LinkedList<>();
         int width = 1, height = 1;
@@ -48,11 +49,12 @@ public class GraphDrawer implements PDrawer<Vertex> {
     @Override
     public void draw(Vertex v) {
         System.out.println();
-        String[][] m = traverse(v);
+        String[][] m = traverseSW(v);
         for (String[] row : m) {
             for(int i = row.length-1;i>=0;i--)
                 System.out.print(row[i] != null ? row[i] : " ");
             System.out.println();
         }
+        System.out.println();
     }
 }
