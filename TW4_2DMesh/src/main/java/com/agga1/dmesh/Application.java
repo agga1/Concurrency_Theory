@@ -7,7 +7,7 @@ class Application {
 
     public static void main(String args[]) {
 //        Scheduler33 s = new Scheduler33();
-        SchedulerN s = new SchedulerN(3, 3);
+        SchedulerN s = new SchedulerN(6, 3);
         s.start();
     }
 }

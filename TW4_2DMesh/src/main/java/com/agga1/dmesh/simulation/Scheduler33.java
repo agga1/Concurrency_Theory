@@ -16,29 +16,29 @@ public class Scheduler33 extends Thread {
     public void run() {
         Vertex S = coord.getAxiom();
         PI p00 = coord.add(new PI(S));
-        coord.execute();
+        coord.executeAndDraw();
 
         PW pw01 = coord.add( new PW(p00.getObj()));
         PS ps10 = coord.add( new PS(p00.getObj()));
-        coord.execute();
+        coord.executeAndDraw();
 
         PW pw02 = coord.add( new PW(pw01.getObj()));
         PS ps11 = coord.add( new PS(pw01.getObj()));
         PS ps20 = coord.add( new PS(ps10.getObj()));
-        coord.execute();
+        coord.executeAndDraw();
 
         PJW pj1 = coord.add( new PJW(ps10.getObj()));
         PS ps12 = coord.add( new PS(pw02.getObj()));
         PS ps21 = coord.add( new PS(ps11.getObj()));
-        coord.execute();
+        coord.executeAndDraw();
 
         PJW pj2 = coord.add( new PJW(ps11.getObj()));
         PJW pj3 = coord.add( new PJW(ps20.getObj()));
         PS ps22 = coord.add( new PS(ps12.getObj()));
-        coord.execute();
+        coord.executeAndDraw();
 
         PJW pj4 = coord.add( new PJW(ps21.getObj()));
-        coord.execute();
+        coord.executeAndDraw();
 
         coord.displayResults();
     }

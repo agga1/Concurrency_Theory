@@ -27,7 +27,7 @@ public class Coordinator {
         return p;
     }
 
-    public void execute(){
+    public void executeAndDraw(){
         this.runner.startAll();
         drawer.draw(S00);
     }
