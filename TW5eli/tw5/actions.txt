@@ -1,0 +1,5 @@
+a, b, c
+aaba
+c x = z + 5
+b y = x - z
+a y = y - z
