@@ -2,75 +2,46 @@ defmodule TW5 do
   @moduledoc """
   Documentation for `TW5`.
   """
-
   @doc """
-  Hello world.
+  main
   """
   def main() do
-    [alphabet, word , actions] = parseInput "actions.txt"
+    [alphabet, wordWithName , actions] = IOfunc.parseInput "actions.txt"
+    [wordName, word] = wordWithName
     dSet = getDependenceSet(actions)
-#    IO.puts("#{dSet}")
+    IOfunc.displaySet(dSet, "D")
     indSet =getIndependenceSet(dSet, alphabet)
-#    IO.puts("#{indSet}")
+    IOfunc.displaySet(indSet, "I")
     foataClasses = foata(dSet, word)
-#    IO.puts(foataClasses)
+    IOfunc.displayFoata(foataClasses, wordName) # todo parse word name as well and dipslay it
     letterIds = markLetters(word, 1)
-    graph = createGraph(dSet, letterIds)
-    foatafromGraph = getFoataFromGraph(graph, letterIds)
-    graphViz = toGraphvizGraph(graph, letterIds)
+    edges = createGraph(dSet, letterIds)
+    foatafromGraph = getFoataFromGraph(edges, letterIds)
+    IOfunc.displayFoata(foatafromGraph, wordName)
+    IOfunc.saveAsDotFile(edges, letterIds)
     # generate png representation of a graph using standard Graphviz library
     System.cmd("dot", [ "-Tpng", "haiku.dot", "-O"])
   end
 
-  def parseInput(path) do
-    {:ok, contents} = File.read(path)
-    [alph_str, word_str | actions_str] = String.split(contents, "\r\n")
-
-    alphabet = alph_str   |> parseAlphabet
-    word =    word_str    |> String.split("", trim: true)
-    actions = actions_str |> Enum.map(&parseAction/1)
-
-    [alphabet, word , actions]
-  end
-
   @doc """
+  finding dependence set - creating a list of all (sorted) pairs, and converting created list
+  to MapSet - for O(1) complexity of membership check
   """
-  def parseAlphabet(line) do
-    line
-      |> String.split("")
-      |> Enum.filter(fn(x) ->
-      String.match?(x, ~r/^[[:alnum:]]+$/)
-              end)
-  end
-
-  def parseAction(line) do
-    [l, r] = String.split(line, "=")
-    [name, modified] = String.split(l, " ", trim: true)
-    refs = MapSet.new(r
-        |> String.split("", trim: true)
-        |> Enum.filter(fn(x) -> String.match?(x, ~r/^[[:alpha:]]+$/) end) # filter non-letters
-            )
-#            IO.puts(MapSet.to_list(refs))
-    [name, modified, refs]
-  end
-
-
-
   def getDependenceSet(actions) do
-    getDependenceSetLoop(actions, [])
-    |> MapSet.new() # convert created list to MapSet for O(1) check if set contains x
+    getDependenceSetLoop(actions, []) |> MapSet.new()
   end
 
   def getDependenceSetLoop([], acc) do acc end
   def getDependenceSetLoop([action | actions], acc) do
-    [name, _mod, _refs] = action
+    [name, _modified, _refs] = action
     new_deps = actions
-               |> Enum.filter(fn(a) -> dependent(a, action) end )
-               |> Enum.flat_map(fn([tmpName, _mod, _refs]) -> [{name, tmpName}, {tmpName, name}] end)
+               |> Enum.filter(fn(a) -> dependent?(a, action) end )
+               |> Enum.flat_map(fn([tmpName, _modified, _refs]) -> [{name, tmpName}, {tmpName, name}] end)
     getDependenceSetLoop(actions, acc ++ [{name, name} | new_deps])
   end
 
-  def dependent([_name, modified, refs], [_name2, modified2, refs2]) do
+  # check if 2 actions are dependent
+  def dependent?([_name, modified, refs], [_name2, modified2, refs2]) do
     MapSet.member?(refs, modified2) or MapSet.member?(refs2, modified)
     or modified == modified2
   end
@@ -157,15 +128,15 @@ defmodule TW5 do
     |> Enum.filter(fn {bin, _id} -> bin==1 end)
     |> Enum.map(fn {_bin, id} -> id end)
   end
-  def pathExists?(edges, []) do true end
-  def pathExists?(edges, [nr]) do true end
+  def pathExists?(_edges, []) do true end
+  def pathExists?(_edges, [_nr]) do true end
   def pathExists?(edges, [nr1, nr2| rest]) do
     MapSet.member?(edges, {nr1, nr2}) and pathExists?(edges, [nr2|rest])
   end
 
-  def getFoataFromGraph(edges, []) do [] end
+  def getFoataFromGraph(_edges, []) do [] end
   def getFoataFromGraph(edges, labelsIds) do
-    division = labelsIds |> Enum.group_by(fn{letter, id} -> hasInputs(edges, id) end)
+    division = labelsIds |> Enum.group_by(fn{_letter, id} -> hasInputs(edges, id) end)
     newClass= Map.get(division, false, [])
     remaingingIds = Map.get(division, true, [])
     newEdges =  deleteEdgesFromVertex(newClass, edges)
@@ -178,15 +149,7 @@ defmodule TW5 do
 
   def deleteEdgesFromVertex([], edges) do edges end
   def deleteEdgesFromVertex([{_letter, id}| vertices], edges) do
-    deleteEdgesFromVertex(vertices, edges |> Enum.filter(fn{from, to}-> from != id end) |> MapSet.new())
-  end
-
-  # --------------------------------------
-  def toGraphvizGraph(edges, letterIds) do
-    edgesStr = edges |> Enum.map(fn {from, to} -> "#{from} -> #{to}" end) |> Enum.join("\n")
-    labelsStr = letterIds |> Enum.map(fn {label, id} -> "#{id}[label=#{label}]" end) |> Enum.join("\n")
-    str = ["digraph g{", edgesStr, labelsStr, "}"] |> Enum.join("\n")
-    File.write("haiku.dot", str)
+    deleteEdgesFromVertex(vertices, edges |> Enum.filter(fn{from, _to}-> from != id end) |> MapSet.new())
   end
 
 end
