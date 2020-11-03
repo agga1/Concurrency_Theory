@@ -16,6 +16,8 @@ defmodule TW5 do
 #    IO.puts(foataClasses)
     letterIds = markLetters(word, 1)
     graph = createGraph(dSet, letterIds)
+    foatafromGraph = getFoataFromGraph(graph, letterIds)
+#    graphViz = toGraphvizGraph(graph, letterIds)
   end
 
   def parseInput(path) do
@@ -42,8 +44,7 @@ defmodule TW5 do
   def parseAction(line) do
     [l, r] = String.split(line, "=")
     [name, modified] = String.split(l, " ", trim: true)
-    refs = MapSet.new(
-        r
+    refs = MapSet.new(r
         |> String.split("", trim: true)
         |> Enum.filter(fn(x) -> String.match?(x, ~r/^[[:alpha:]]+$/) end) # filter non-letters
             )
@@ -124,12 +125,12 @@ defmodule TW5 do
   def createGraph(deps, letterIds) do
     allEdgesSet = findAllEdges(deps, letterIds, []) |> MapSet.new()
     n = length(letterIds)
-#    edges = removeRedundantEdges(allEdgesSet)
-    generate(allEdgesSet, [], 0, n, 0)
+    redundant = findAllRedundant(allEdgesSet, [], 0, n, 0) |> MapSet.new()
+    edgeSet = MapSet.difference(allEdgesSet, redundant)
+    edgeSet
   end
 
   def findAllEdges(_, [], edges) do edges end
-
   def findAllEdges(deps, [letterId | letterIds], edges) do
     # find all connections with future letters
     {letter, id} = letterId
@@ -138,39 +139,16 @@ defmodule TW5 do
                |> Enum.map(fn{_, tId} -> {id, tId} end)
     findAllEdges(deps, letterIds, edges ++ newEdges)
   end
-#  def removeRedundantEdges(edgesSet) do
-#    removeRedundantLoop(edgesSet,edgesSet|>Enum.to_list())
-#  end
-#  def removeRedundantLoop(edgesSet, []) do
-#    edgesSet
-#  end
-#  def removeRedundantLoop(edgesSet,[edge|edges]) do
-#    {one, two} = edge
-#    IO.puts("checking #{one} #{two}")
-#    if two-one == 1 do
-#      removeRedundantLoop(edgesSet,edges)
-#    else
-#      if canReach()
-#    end
-#  end
-#
-#  def removeRedundantEdges(edges, node, n) do
-#    IO.puts(node)
-#    1..(node-1) |> Enum.filter(fn tNode ->  MapSet.member?(edges, {tNode, node}) end)
-##    edges |> Enum.filter(fn{from, to} -> MapSet.member?(edges, {to, node}) end)
-#    removeRedundantEdges(edges, node+1, n)
-#  end
 
-  # generate all binary numbers containing at least 3 ones
-  def generate(edges, prefix, n, n, ones) do
+  def findAllRedundant(edges, prefix, n, n, ones) do
     if ones>2 do
       path = binaryToPath(prefix, n)
       if pathExists?(edges, path) do
         [{List.first(path), List.last(path)}] else [] end
     else [] end
   end
-  def generate(edges, prefix, len, n, ones) do
-    generate(edges, [0|prefix], len+1, n, ones)++generate(edges, [1|prefix], len+1, n, ones+1)
+  def findAllRedundant(edges, prefix, len, n, ones) do
+    findAllRedundant(edges, [0|prefix], len+1, n, ones) ++ findAllRedundant(edges, [1|prefix], len+1, n, ones+1)
   end
   def binaryToPath(binary, n)do
     List.zip([binary, 1..n|> Enum.to_list()])
@@ -181,6 +159,32 @@ defmodule TW5 do
   def pathExists?(edges, [nr]) do true end
   def pathExists?(edges, [nr1, nr2| rest]) do
     MapSet.member?(edges, {nr1, nr2}) and pathExists?(edges, [nr2|rest])
+  end
+
+  def getFoataFromGraph(edges, []) do [] end
+  def getFoataFromGraph(edges, labelsIds) do
+    division = labelsIds |> Enum.group_by(fn{letter, id} -> hasInputs(edges, id) end)
+    newClass= Map.get(division, false, [])
+    remaingingIds = Map.get(division, true, [])
+    newEdges =  deleteEdgesFromVertex(newClass, edges)
+    [ newClass |> Enum.map(&elem(&1, 0)) |  getFoataFromGraph(newEdges, remaingingIds)]
+  end
+
+  def hasInputs(edges, id) do
+    1..(id-1) |> Enum.any?(&MapSet.member?(edges, {&1, id}))
+  end
+
+  def deleteEdgesFromVertex([], edges) do edges end
+  def deleteEdgesFromVertex([{_letter, id}| vertices], edges) do
+    deleteEdgesFromVertex(vertices, edges |> Enum.filter(fn{from, to}-> from != id end) |> MapSet.new())
+  end
+
+  # --------------------------------------
+  def toGraphvizGraph(edges, letterIds) do
+    edgesStr = edges |> Enum.map(fn {from, to} -> "#{from} -> #{to}" end) |> Enum.join("\n")
+    labelsStr = letterIds |> Enum.map(fn {label, id} -> "#{id}[label=#{label}]" end) |> Enum.join("\n")
+    str = ["digraph g{", edgesStr, labelsStr, "}"] |> Enum.join("\n")
+    File.write("haiku.txt", str)
   end
 
 end
