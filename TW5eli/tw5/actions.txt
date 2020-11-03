@@ -1,5 +1,6 @@
-a, b, c
-aaba
-c x = z + 5
-b y = x - z
-a y = y - z
+a, b, c, d
+baadcb
+a x = x + y
+b y = y + 2z
+c x = 3x + z
+d z = y-z

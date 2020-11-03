@@ -8,10 +8,14 @@ defmodule TW5 do
   """
   def main() do
     [alphabet, word , actions] = parseInput "actions.txt"
-    dSet = findDependants(actions, []) |> MapSet.new()
-    aSquared = squareSet(alphabet, []) |> MapSet.new()
-    indSet = MapSet.difference(aSquared, dSet)
-    indSet
+    dSet = getDependenceSet(actions)
+#    IO.puts("#{dSet}")
+    indSet =getIndependenceSet(dSet, alphabet)
+#    IO.puts("#{indSet}")
+    foataClasses = foata(dSet, word)
+#    IO.puts(foataClasses)
+    letterIds = markLetters(word, 1)
+    graph = createGraph(dSet, letterIds)
   end
 
   def parseInput(path) do
@@ -28,42 +32,155 @@ defmodule TW5 do
   @doc """
   """
   def parseAlphabet(line) do
-    letters = line
-              |> String.split("")
-              |> Enum.filter(fn(x) ->
+    line
+      |> String.split("")
+      |> Enum.filter(fn(x) ->
       String.match?(x, ~r/^[[:alnum:]]+$/)
-    end)
+              end)
   end
 
   def parseAction(line) do
-    [name, modified, "=" | tail] = String.split(line, " ")
+    [l, r] = String.split(line, "=")
+    [name, modified] = String.split(l, " ", trim: true)
     refs = MapSet.new(
-      tail |> Enum.filter(fn(x) -> String.match?(x, ~r/^[[:alpha:]]+$/) end) # filter non-letters
+        r
+        |> String.split("", trim: true)
+        |> Enum.filter(fn(x) -> String.match?(x, ~r/^[[:alpha:]]+$/) end) # filter non-letters
             )
+#            IO.puts(MapSet.to_list(refs))
     [name, modified, refs]
   end
 
 
-  @doc """
-  """
+
+  def getDependenceSet(actions) do
+    getDependenceSetLoop(actions, [])
+    |> MapSet.new() # convert created list to MapSet for O(1) check if set contains x
+  end
+
+  def getDependenceSetLoop([], acc) do acc end
+  def getDependenceSetLoop([action | actions], acc) do
+    [name, _mod, _refs] = action
+    new_deps = actions
+               |> Enum.filter(fn(a) -> dependent(a, action) end )
+               |> Enum.flat_map(fn([tmpName, _mod, _refs]) -> [{name, tmpName}, {tmpName, name}] end)
+    getDependenceSetLoop(actions, acc ++ [{name, name} | new_deps])
+  end
+
   def dependent([_name, modified, refs], [_name2, modified2, refs2]) do
     MapSet.member?(refs, modified2) or MapSet.member?(refs2, modified)
     or modified == modified2
   end
 
-  def findDependants([], acc) do acc end
-  def findDependants([action | actions], acc) do
-    [name, _mod, _refs] = action
-    new_deps = [action | actions]
-               |> Enum.filter(fn(a) -> dependent(a, action) end )
-               |> Enum.map(fn([tmpName, _mod, _refs]) -> MapSet.new([name, tmpName]) end)
-    findDependants(actions, acc ++ new_deps)
+  def getIndependenceSet(dSet, alphabet) do
+    squaredSet = getSquareSet(alphabet, []) |> MapSet.new()
+    #    IO.puts("#{squaredSet}")
+    MapSet.difference(squaredSet, dSet)
   end
 
-  def squareSet([], acc) do acc end
-  def squareSet([el | tail], acc) do
-    pairs = [el | tail] |> Enum.map(fn(e) ->  MapSet.new([el, e]) end )
-    squareSet(tail, acc ++ pairs)
+  def getSquareSet([], acc) do acc end
+  def getSquareSet([el | tail], acc) do
+    pairs = tail
+            |> Enum.flat_map(fn(e) -> [{el, e}, {e, el}] end)
+    getSquareSet(tail, acc ++ [{el, el}|pairs])
+  end
+
+  def foata(dSet, word) do
+    letter_class = getLetterClassnrPairs(dSet, word, [])
+    toFnF(letter_class)
+  end
+
+  def isDependent(deps, action1, action2) do
+    MapSet.member?(deps, {action1, action2})
+  end
+  
+  def getLetterClassnrPairs(_, [], processed_actions) do
+    processed_actions
+  end
+  
+  def getLetterClassnrPairs(deps, [letter | letters], processed_actions) do
+    # find min number from processed_actions filtered by dependency with letter
+    # recurse for letter and updated processed actions
+    highestNr = processed_actions
+          |> Enum.filter(fn({tmpLetter, _nr}) -> isDependent(deps, tmpLetter, letter) end)
+          |> Enum.map(fn({_tmpLetter, nr})-> nr end)
+          |> Enum.max(&>=/2, fn -> 0 end)
+    getLetterClassnrPairs(deps, letters, [{letter, highestNr+1} | processed_actions])
+  end
+
+  def toFnF(letter_class) do
+    classN = letter_class |> Enum.reduce(0, fn {_letter, nr}, acc -> max(nr, acc) end)
+    1..classN |> Enum.map(fn(nr) ->
+      letter_class |> Enum.filter(fn {_letter, tmpNr} -> tmpNr==nr end) |> Enum.map(&elem(&1, 0))
+      end)
+  end
+
+  # assign id to each letter to distinguish between productions
+  def markLetters([], _) do [] end
+  def markLetters([letter|letters], nr) do
+    [{letter, nr}| markLetters(letters, nr+1)]
+  end
+
+  def createGraph(deps, letterIds) do
+    allEdgesSet = findAllEdges(deps, letterIds, []) |> MapSet.new()
+    n = length(letterIds)
+#    edges = removeRedundantEdges(allEdgesSet)
+    generate(allEdgesSet, [], 0, n, 0)
+  end
+
+  def findAllEdges(_, [], edges) do edges end
+
+  def findAllEdges(deps, [letterId | letterIds], edges) do
+    # find all connections with future letters
+    {letter, id} = letterId
+    newEdges = letterIds
+               |> Enum.filter(fn{tLetter, _} -> isDependent(deps, tLetter, letter) end)
+               |> Enum.map(fn{_, tId} -> {id, tId} end)
+    findAllEdges(deps, letterIds, edges ++ newEdges)
+  end
+#  def removeRedundantEdges(edgesSet) do
+#    removeRedundantLoop(edgesSet,edgesSet|>Enum.to_list())
+#  end
+#  def removeRedundantLoop(edgesSet, []) do
+#    edgesSet
+#  end
+#  def removeRedundantLoop(edgesSet,[edge|edges]) do
+#    {one, two} = edge
+#    IO.puts("checking #{one} #{two}")
+#    if two-one == 1 do
+#      removeRedundantLoop(edgesSet,edges)
+#    else
+#      if canReach()
+#    end
+#  end
+#
+#  def removeRedundantEdges(edges, node, n) do
+#    IO.puts(node)
+#    1..(node-1) |> Enum.filter(fn tNode ->  MapSet.member?(edges, {tNode, node}) end)
+##    edges |> Enum.filter(fn{from, to} -> MapSet.member?(edges, {to, node}) end)
+#    removeRedundantEdges(edges, node+1, n)
+#  end
+
+  # generate all binary numbers containing at least 3 ones
+  def generate(edges, prefix, n, n, ones) do
+    if ones>2 do
+      path = binaryToPath(prefix, n)
+      if pathExists?(edges, path) do
+        [{List.first(path), List.last(path)}] else [] end
+    else [] end
+  end
+  def generate(edges, prefix, len, n, ones) do
+    generate(edges, [0|prefix], len+1, n, ones)++generate(edges, [1|prefix], len+1, n, ones+1)
+  end
+  def binaryToPath(binary, n)do
+    List.zip([binary, 1..n|> Enum.to_list()])
+    |> Enum.filter(fn {bin, _id} -> bin==1 end)
+    |> Enum.map(fn {_bin, id} -> id end)
+  end
+  def pathExists?(edges, []) do true end
+  def pathExists?(edges, [nr]) do true end
+  def pathExists?(edges, [nr1, nr2| rest]) do
+    MapSet.member?(edges, {nr1, nr2}) and pathExists?(edges, [nr2|rest])
   end
 
 end
