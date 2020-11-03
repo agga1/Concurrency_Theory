@@ -17,7 +17,9 @@ defmodule TW5 do
     letterIds = markLetters(word, 1)
     graph = createGraph(dSet, letterIds)
     foatafromGraph = getFoataFromGraph(graph, letterIds)
-#    graphViz = toGraphvizGraph(graph, letterIds)
+    graphViz = toGraphvizGraph(graph, letterIds)
+    # generate png representation of a graph using standard Graphviz library
+    System.cmd("dot", [ "-Tpng", "haiku.dot", "-O"])
   end
 
   def parseInput(path) do
@@ -184,7 +186,7 @@ defmodule TW5 do
     edgesStr = edges |> Enum.map(fn {from, to} -> "#{from} -> #{to}" end) |> Enum.join("\n")
     labelsStr = letterIds |> Enum.map(fn {label, id} -> "#{id}[label=#{label}]" end) |> Enum.join("\n")
     str = ["digraph g{", edgesStr, labelsStr, "}"] |> Enum.join("\n")
-    File.write("haiku.txt", str)
+    File.write("haiku.dot", str)
   end
 
 end
