@@ -1,5 +1,5 @@
 a, b, c, d, e
-w = baadcbe
+w = baadcbbaadcb
 a x = x + y
 b y = y + 2z
 c x = 3x + z
