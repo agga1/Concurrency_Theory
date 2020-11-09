@@ -2,7 +2,7 @@ defmodule IOfunc do
   @moduledoc false
 
   @doc """
-  Parsing input
+  Wczytaniw pliku wejściowego i zamiana stringów na wygodniejszą reprezentację.
   """
   def parseInput(path) do
     {:ok, contents} = File.read(path)
@@ -15,22 +15,38 @@ defmodule IOfunc do
     [alphabet, word , actions]
   end
 
+  @doc """
+  Wczytanie alfabetu: z postaci 'A = {a,b,c}' (lub 'A = {a, b, c})
+  do postaci listy: [a,b,c]
+  """
   def parseAlphabet(line) do
-    line
+    [_A, seq] = String.split(line, " = ")
+    seq
     |> String.split("")
     |> Enum.filter(fn(x) ->
       String.match?(x, ~r/^[[:alnum:]]+$/)
     end)
   end
 
+  @doc """
+  zmiana reprezentacji słowa:
+  przekształca string 'w = aabc'
+  jako listę: [a, a, b, c]
+  """
   def parseWord(wordStr) do
-    [name, word] = String.split(wordStr, " = ")
-    [name,  word|>String.split("", trim: true)]
+    [_w, word] = String.split(wordStr, " = ")
+    word |> String.split("", trim: true)
   end
 
+  @doc """
+  wygodniejsza reprezentacja transakcji:
+  przekształca transakcje '(a) x = x + y'
+  do formy: [a, x, {x,y}]
+  """
   def parseAction(line) do
     [l, r] = String.split(line, "=")
-    [name, modified] = String.split(l, " ", trim: true)
+    [nameP, modified] = String.split(l, " ", trim: true)
+    ["(", name, ")"] = String.split(nameP, "", trim: true)
     refs = MapSet.new(r
                       |> String.split("", trim: true)
                       |> Enum.filter(fn(x) -> String.match?(x, ~r/^[[:alpha:]]+$/) end) # filter non-letters
@@ -39,26 +55,35 @@ defmodule IOfunc do
   end
 
   @doc """
-  formatting output
+  formatowanie wyświetlania zbioru:
+  postaci MapSet([{a,b}, {b,c}])
+  jako Nazwa = {(a,b), (b,c)}
   """
   def displaySet(set, name) do
     pairs = set |> Enum.map(fn{a, b} -> "(#{a},#{b})" end) |> Enum.join(",")
     IO.puts("#{name} = {#{pairs}}")
   end
 
-  def displayFoata(classes, wordName) do
+  @doc """
+  wyświetla postać normalną Foaty.
+  Przyjmuje klasy Foaty zapisane jako lista list
+  np: [[b],[da],[a]]
+  i wyświetla jako: 'FNF[w] = (b)(da)(a)'
+  """
+  def displayFoata(classes) do
     ans = classes |> Enum.map(&Enum.join(&1, "")) |> Enum.join(")(")
-    IO.puts("FNF[#{wordName}] = (#{ans})")
+    IO.puts("FNF[w] = (#{ans})")
   end
 
   @doc """
-  formatting output
+  zapisuje graf dany jako @edges: listę krawędzi oraz @letterIds: listę par (nazwa_akcji, numer_wierzcholka_w_grafie)
+  do formatu dot
   """
   def saveAsDotFile(edges, letterIds) do
     edgesStr = edges |> Enum.map(fn {from, to} -> "#{from} -> #{to}" end) |> Enum.join("\n")
     labelsStr = letterIds |> Enum.map(fn {label, id} -> "#{id}[label=#{label}]" end) |> Enum.join("\n")
     str = ["digraph g{", edgesStr, labelsStr, "}"] |> Enum.join("\n")
-    File.write("haiku.dot", str)
+    File.write("graph.dot", str)
   end
 
 end
