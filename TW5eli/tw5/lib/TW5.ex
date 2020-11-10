@@ -173,7 +173,7 @@ defmodule TW5 do
   """
   def getFoataFromGraph(_edges, []) do [] end
   def getFoataFromGraph(edges, lettersIds) do
-    # split vertices into 2 groups depending on whether they have any input edges
+    # podziel wierzcholki w zależności czy mają wchodzące do nich krawędzie
     division = lettersIds |> Enum.group_by(fn{_letter, id} -> hasInputs?(edges, id) end)
     newClass= Map.get(division, false, [])
     remaingingIds = Map.get(division, true, [])
