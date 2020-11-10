@@ -11,22 +11,27 @@ defmodule TW5 do
   !! bez nowej linii na końcu pliku !!
   Przykladowe poprawne wejscie w pliku example.txt
   """
-  def main() do
+  def main(inputFile) do
     # konwertowanie wejścia do odpowiedniej reprezentacji: patrz moduł IOfunc
-    [alphabet, word, actions] = IOfunc.parseInput "example.txt"
+    [alphabet, word, actions] = IOfunc.parseInput inputFile
+
+    # D, I, FnF([w])
     dSet = getDependenceSet(actions)
     IOfunc.displaySet(dSet, "D")
-    indSet =getIndependenceSet(dSet, alphabet)
+    indSet = getIndependenceSet(dSet, alphabet)
     IOfunc.displaySet(indSet, "I")
-    foataClasses = getFoataFromSet(dSet, word)
-    IOfunc.displayFoata(foataClasses)
+    IO.puts("Postac normalna Foaty wyznaczona na podstawie relacji D:")
+    getFoataFromSet(dSet, word) |> IOfunc.displayFoata
+
+    # graf Diekerta
     letterIds = markLetters(word, 1)
     edges = createGraph(dSet, letterIds)
-    foatafromGraph = getFoataFromGraph(edges, letterIds)
-    IOfunc.displayFoata(foatafromGraph)
+    IO.puts("Postac normalna Foaty wyznaczona na podstawie grafu:")
+    getFoataFromGraph(edges, letterIds) |> IOfunc.displayFoata
 
+    # generacja graficznej reprezentacji grafu na podstawie stworzonego pliku graph.dot
+    # przy użyciu standardowej biblioteki Graphviz i komendy dot.
     IOfunc.saveAsDotFile(edges, letterIds)
-#     generate png representation of a graph using standard Graphviz library (dot must be added to path)
     System.cmd("dot", [ "-Tpng", "graph.dot", "-O"])
   end
 
@@ -98,7 +103,7 @@ defmodule TW5 do
     getLetterClassnrPairs(deps, letters, [{letter, highestNr+1} | processed_actions])
   end
 
-  # sprawdza czy dwie transakcje są zależne
+  # sprawdza czy dwie transakcje są zależne, znając relację zależności D ('deps')
   def isDependent?(deps, action1, action2) do
     MapSet.member?(deps, {action1, action2})
   end

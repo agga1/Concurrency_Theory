@@ -41,7 +41,7 @@ defmodule IOfunc do
   @doc """
   wygodniejsza reprezentacja transakcji:
   przekształca transakcje '(a) x = x + y'
-  do formy: [a, x, {x,y}]
+  do formy: [a, x, {x,y}] (czyli: [nazwa transakcji, zmienna modyfikowana, zbiór zmiennych czytanych])
   """
   def parseAction(line) do
     [l, r] = String.split(line, "=")
@@ -77,7 +77,7 @@ defmodule IOfunc do
 
   @doc """
   zapisuje graf dany jako @edges: listę krawędzi oraz @letterIds: listę par (nazwa_akcji, numer_wierzcholka_w_grafie)
-  do formatu dot
+  do formatu dot, jako plik "graph.dot"
   """
   def saveAsDotFile(edges, letterIds) do
     edgesStr = edges |> Enum.map(fn {from, to} -> "#{from} -> #{to}" end) |> Enum.join("\n")

@@ -1,21 +1,21 @@
-# TW5
+## Agnieszka Dutka
 
-**TODO: Add description**
+# Teoria Współbieżności - ćwiczenie 5
 
-## Installation
+## Wymagania:
+elixir 1.10  (zawiera mix do automatycznej kompilacji)
+https://elixir-lang.org/install.html
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `tw5` to your list of dependencies in `mix.exs`:
+## Uruchomienie projektu
+W głównym katalogu projektu należy wywołać komendę `mix compile`.
+Aby uruchomić projekt należy następnie uruchomić konsolę iex komendą `iex -S mix`.
+W konsoli wpisujemy `TW5.main("example.txt")`, jako argument dla funkcji main podając 
+nazwę pliku z danymi wejściowymi.
 
-```elixir
-def deps do
-  [
-    {:tw5, "~> 0.1.0"}
-  ]
-end
-```
+# Przykładowe wyniki
+Wyniki działania dla przykładu "example.txt" oraz "example2.txt" odpowiednio w plikach
+"example_ans.txt" i "example2_ans.txt", ze stworzonymi grafami w plikach "graph.dot.png" i 
+"graph2.dot.png"
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/tw5](https://hexdocs.pm/tw5).
+
 

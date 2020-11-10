@@ -1,0 +1,4 @@
+D = {(a,a),(a,c),(a,f),(b,b),(b,e),(c,a),(c,c),(c,e),(c,f),(d,d),(d,f),(e,b),(e,c),(e,e),(f,a),(f,c),(f,d),(f,f)}
+I = {(a,b),(a,d),(a,e),(b,a),(b,c),(b,d),(b,f),(c,b),(c,d),(d,a),(d,b),(d,c),(d,e),(e,a),(e,d),(e,f),(f,b),(f,e)}
+FNF[w] = (bda)(bc)(c)(ef)
+FNF[w] = (adb)(cb)(c)(fe)
