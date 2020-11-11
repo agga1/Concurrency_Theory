@@ -1,0 +1,7 @@
+D = {(a,a),(a,b),(a,c),(b,a),(b,b),(b,d),(c,a),(c,c),(c,d),(d,b),(d,c),(d,d)}
+I = {(a,d),(b,c),(c,b),(d,a)}
+Postac normalna Foaty wyznaczona na podstawie relacji D:
+FNF[w] = (b)(da)(a)(bc)
+Postac normalna Foaty wyznaczona na podstawie grafu:
+FNF[w] = (b)(ad)(a)(cb)
+

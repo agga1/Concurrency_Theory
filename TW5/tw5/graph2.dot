@@ -1,0 +1,17 @@
+digraph g{
+4 -> 8
+7 -> 8
+6 -> 7
+3 -> 5
+4 -> 5
+2 -> 4
+1 -> 2
+1[label=a]
+2[label=c]
+3[label=d]
+4[label=c]
+5[label=f]
+6[label=b]
+7[label=b]
+8[label=e]
+}
