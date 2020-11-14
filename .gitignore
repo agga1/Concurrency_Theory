@@ -2,6 +2,7 @@
 *.pdf
 *.docx
 TW2-filozo
+TW4_1DMesh
 *.iml
 **/.idea
 **/target
